@@ -24,3 +24,17 @@ test('.write', function(t) {
   lpm.write(stream, new Buffer('Hello world'));
   stream.end();
 });
+
+test('.write string support', function(t) {
+  var lpm = lengthPrefixed({length: 2});
+  var stream = concat(function(buff) {
+    var len = buff.readUInt16LE(0);
+    t.equal(len, 11);
+
+    var str = buff.slice(2, 13).toString();
+    t.equal(str, 'Hello world');
+    t.end();
+  });
+  lpm.write(stream, 'Hello world');
+  stream.end();
+});

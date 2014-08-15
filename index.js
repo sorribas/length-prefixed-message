@@ -52,6 +52,7 @@ var create = function(opts) {
   };
 
   that.write = function(stream, buffer) {
+    if (typeof buffer === 'string') buffer = new Buffer(buffer);
     var buf = new Buffer(buffer.length + opts.length);
     writeFn(opts.length).call(buf, buffer.length, 0);
     buffer.copy(buf, opts.length);
