@@ -5,7 +5,13 @@
 
 Reads and writes binary length prefixed messages.
 
-Example
+##Install
+
+```
+npm install length-prefixed-message
+```
+
+##Example
 
 ```js
 var lengthPrefixedMessage = require('length-prefixed-message');
