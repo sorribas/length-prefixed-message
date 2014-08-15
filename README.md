@@ -13,4 +13,7 @@ lpm.read(someStream, function(msgBuffer) {
 });
 
 lpm.write(someOtherStream, new Buffer('hello world'));
+
+// or you can just pass a string if you want.
+lpm.write(someOtherStream, 'hello world');
 ```
