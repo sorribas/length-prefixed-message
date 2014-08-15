@@ -1,5 +1,8 @@
 #length-prefixed-message
 
+
+[![build status](https://travis-ci.org/sorribas/length-prefixed-message.png)](https://travis-ci.org/sorribas/length-prefixed-message.png)
+
 Reads and writes binary length prefixed messages.
 
 Example
