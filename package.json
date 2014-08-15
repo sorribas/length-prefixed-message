@@ -1,0 +1,28 @@
+{
+  "name": "length-prefixed-message",
+  "version": "0.0.0",
+  "description": "Reads and writes binary length prefixed messages. ",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/sorribas/length-prefixed-message.git"
+  },
+  "keywords": [
+    "binary",
+    "message",
+    "prefixed"
+  ],
+  "author": "Eduardo Sorribas <eduardo@sorribas.org> (http://sorribas.org/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sorribas/length-prefixed-message/issues"
+  },
+  "homepage": "https://github.com/sorribas/length-prefixed-message",
+  "devDependencies": {
+    "tape": "^2.14.0",
+    "concat-stream": "^1.4.6"
+  }
+}
