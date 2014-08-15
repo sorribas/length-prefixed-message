@@ -36,8 +36,8 @@ var create = function(opts) {
     var readable = function() {
       if (!msglen) {
         msglen = stream.read(opts.length);
-        msglen = readFn(opts.length).call(msglen, 0);
         if (!msglen) return;
+        msglen = readFn(opts.length).call(msglen, 0);
       }
 
       var chunk = stream.read(msglen);
@@ -60,3 +60,5 @@ var create = function(opts) {
 
   return that;
 };
+
+module.exports = create;
