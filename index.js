@@ -26,8 +26,11 @@ var writeFn = function(byteLen) {
 
 var create = function(opts) {
   opts = opts || {};
-  opts.length = opts.length || 2;
+  opts.length = opts.length || 4;
   if ([1,2,4].indexOf(opts.length) === -1) throw new Error('Invalid message length.');
+
+  var writefn = writeFn(opts.length);
+  var readfn = readFn(opts.length);
 
   var that = {};
 
@@ -37,7 +40,7 @@ var create = function(opts) {
       if (!msglen) {
         msglen = stream.read(opts.length);
         if (!msglen) return;
-        msglen = readFn(opts.length).call(msglen, 0);
+        msglen = readfn.call(msglen, 0);
       }
 
       var chunk = stream.read(msglen);
@@ -54,7 +57,7 @@ var create = function(opts) {
   that.write = function(stream, buffer) {
     if (typeof buffer === 'string') buffer = new Buffer(buffer);
     var buf = new Buffer(buffer.length + opts.length);
-    writeFn(opts.length).call(buf, buffer.length, 0);
+    writefn.call(buf, buffer.length, 0);
     buffer.copy(buf, opts.length);
     stream.write(buf);
   };
