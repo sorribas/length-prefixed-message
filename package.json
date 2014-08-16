@@ -23,7 +23,8 @@
   "homepage": "https://github.com/sorribas/length-prefixed-message",
   "devDependencies": {
     "tape": "^2.14.0",
-    "concat-stream": "^1.4.6"
+    "concat-stream": "^1.4.6",
+    "choppa": "^1.0.0"
   },
   "dependencies": {
     "varint": "^3.0.1"
