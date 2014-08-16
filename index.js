@@ -6,10 +6,12 @@ var pool = new Buffer(POOL_SIZE);
 
 exports.read = function(stream, cb) {
   var msglen = 0;
+  var prev = new Buffer(0);
   var readable = function() {
     if (!msglen) {
       var buf = stream.read();
       if (!buf) return;
+      buf = Buffer.concat([prev, buf]);
 
       for (var i = 0; i < buf.length; i++) {
         if (!(buf[i] & 0x80)) {
@@ -18,7 +20,7 @@ exports.read = function(stream, cb) {
         }
       }
       if (!msglen) {
-        stream.unshift(buf);
+        prev = Buffer.concat([prev, buf]);
         return;
       }
       buf = buf.slice(varint.decode.bytes);
