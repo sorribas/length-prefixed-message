@@ -17,7 +17,10 @@ exports.read = function(stream, cb) {
           break;
         }
       }
-      if (!msglen) return;
+      if (!msglen) {
+        stream.unshift(buf);
+        return;
+      }
       buf = buf.slice(varint.decode.bytes);
       stream.unshift(buf);
     }
