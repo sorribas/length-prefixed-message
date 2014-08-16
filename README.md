@@ -14,8 +14,7 @@ npm install length-prefixed-message
 ##Example
 
 ```js
-var lengthPrefixedMessage = require('length-prefixed-message');
-var lpm = lengthPrefixedMessage({length: 2}); // the length of the prefix
+var lpm = require('length-prefixed-message');
 
 lpm.read(someStream, function(msgBuffer) {
     console.log(msgBuffer.toString());
