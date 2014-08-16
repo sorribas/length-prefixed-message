@@ -1,10 +1,10 @@
 var fs = require('fs');
 var test = require('tape');
 var concat = require('concat-stream');
-var lengthPrefixed = require('./');
+var lpm = require('./');
+var varint = require('varint');
 
 test('.read', function(t) {
-  var lpm = lengthPrefixed({length: 2});
   lpm.read(fs.createReadStream('./fixtures'), function(buf) {
     t.equal(buf.toString(), 'When Gregor Samsa woke up one morning from unsettling dreams, he found himself changed \n');
     t.end();
@@ -12,12 +12,11 @@ test('.read', function(t) {
 });
 
 test('.write', function(t) {
-  var lpm = lengthPrefixed({length: 2});
   var stream = concat(function(buff) {
-    var len = buff.readUInt16LE(0);
+    var len = varint.decode(buff);
     t.equal(len, 11);
 
-    var str = buff.slice(2, 13).toString();
+    var str = buff.slice(varint.decode.bytes).toString();
     t.equal(str, 'Hello world');
     t.end();
   });
@@ -26,15 +25,14 @@ test('.write', function(t) {
 });
 
 test('.write string support', function(t) {
-  var lpm = lengthPrefixed({length: 2});
   var stream = concat(function(buff) {
-    var len = buff.readUInt16LE(0);
+    var len = varint.decode(buff);
     t.equal(len, 11);
 
-    var str = buff.slice(2, 13).toString();
+    var str = buff.slice(varint.decode.bytes).toString();
     t.equal(str, 'Hello world');
     t.end();
   });
-  lpm.write(stream, 'Hello world');
+  lpm.write(stream, new Buffer('Hello world'));
   stream.end();
 });

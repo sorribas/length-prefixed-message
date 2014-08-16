@@ -1,69 +1,45 @@
-var readFn = function(byteLen) {
-  switch(byteLen) {
-    case 1:
-      return Buffer.prototype.readUInt8
-    case 2:
-      return Buffer.prototype.readUInt16LE
-    case 4:
-      return Buffer.prototype.readUInt32LE
-    default:
-      return null;
-  }
-};
+var varint = require('varint');
 
-var writeFn = function(byteLen) {
-  switch(byteLen) {
-    case 1:
-      return Buffer.prototype.writeUInt8
-    case 2:
-      return Buffer.prototype.writeUInt16LE
-    case 4:
-      return Buffer.prototype.writeUInt32LE
-    default:
-      return null;
-  }
-};
+var POOL_SIZE = 100000;
+var MINIMUM_POOL_LENGTH = 100;
+var pool = new Buffer(POOL_SIZE);
 
-var create = function(opts) {
-  if (typeof opts === 'number') opts = {length:opts}
-  opts = opts || {};
-  opts.length = opts.length || 4;
-  if ([1,2,4].indexOf(opts.length) === -1) throw new Error('Invalid message length.');
+exports.read = function(stream, cb) {
+  var msglen = 0;
+  var readable = function() {
+    if (!msglen) {
+      var buf = stream.read();
+      if (!buf) return;
 
-  var writefn = writeFn(opts.length);
-  var readfn = readFn(opts.length);
-
-  var that = {};
-
-  that.read = function(stream, cb) {
-    var msglen = 0;
-    var readable = function() {
-      if (!msglen) {
-        msglen = stream.read(opts.length);
-        if (!msglen) return;
-        msglen = readfn.call(msglen, 0);
+      for (var i = 0; i < buf.length; i++) {
+        if (!(buf[i] & 0x80)) {
+          msglen = varint.decode(buf);
+          break;
+        }
       }
+      if (!msglen) return;
+      buf = buf.slice(varint.decode.bytes);
+      stream.unshift(buf);
+    }
 
-      var chunk = stream.read(msglen);
-      if (!chunk) return;
+    var chunk = stream.read(msglen);
+    if (!chunk) return;
 
-      stream.removeListener('readable', readable);
-      cb(chunk)
-    };
-
-    stream.on('readable', readable);
-    readable();
+    stream.removeListener('readable', readable);
+    cb(chunk)
   };
 
-  that.write = function(stream, buffer) {
-    if (typeof buffer === 'string') buffer = new Buffer(buffer);
-    var buf = new Buffer(buffer.length + opts.length);
-    writefn.call(buf, buffer.length, 0);
-    buffer.copy(buf, opts.length);
-    stream.write(buf);
-  };
-
-  return that;
+  stream.on('readable', readable);
+  readable();
 };
 
-module.exports = create;
+exports.write = function(stream, msg) {
+  if (typeof msg === 'string') msg = new Buffer(msg);
+  varint.encode(msg.length, pool);
+  var lenBuf = pool.slice(0, varint.encode.bytes);
+  pool = pool.slice(varint.encode.bytes);
+  if (pool.length < MINIMUM_POOL_LENGTH) pool = new Buffer(POOL_SIZE);
+
+  stream.write(lenBuf);
+  stream.write(msg);
+};
