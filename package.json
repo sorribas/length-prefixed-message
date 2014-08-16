@@ -1,6 +1,6 @@
 {
   "name": "length-prefixed-message",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Reads and writes binary length prefixed messages. ",
   "main": "index.js",
   "scripts": {
