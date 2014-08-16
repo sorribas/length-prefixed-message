@@ -25,6 +25,7 @@ var writeFn = function(byteLen) {
 };
 
 var create = function(opts) {
+  if (typeof opts === 'number') opts = {length:opts}
   opts = opts || {};
   opts.length = opts.length || 4;
   if ([1,2,4].indexOf(opts.length) === -1) throw new Error('Invalid message length.');
