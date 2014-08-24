@@ -7,10 +7,19 @@ var pool = new Buffer(POOL_SIZE);
 exports.read = function(stream, cb) {
   var msglen = 0;
   var prev = null;
+  var lock = false;
+
+  var unlock = function() {
+    lock = false
+  };
+
   var readable = function() {
+    if (lock) return;
+    lock = true;
+
     if (!msglen) {
       var buf = stream.read();
-      if (!buf) return;
+      if (!buf) return unlock();
       if (prev) {
         buf = Buffer.concat([prev, buf]);
         prev = null;
@@ -24,14 +33,14 @@ exports.read = function(stream, cb) {
       }
       if (!msglen) {
         prev = buf;
-        return;
+        return unlock();
       }
       buf = buf.slice(varint.decode.bytes);
       stream.unshift(buf);
     }
 
     var chunk = stream.read(msglen);
-    if (!chunk) return;
+    if (!chunk) return unlock();
 
     stream.removeListener('readable', readable);
     cb(chunk)
