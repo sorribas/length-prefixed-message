@@ -1,4 +1,5 @@
 var fs = require('fs');
+var stream = require('stream');
 var test = require('tape');
 var concat = require('concat-stream');
 var lpm = require('./');
@@ -45,4 +46,21 @@ test('.write string support', function(t) {
   });
   lpm.write(stream, new Buffer('Hello world'));
   stream.end();
+});
+
+test('.read two messages in one buffer', function(t) {
+  var buf = new Buffer('0f6c6f63616c686f73743a31303030300f6c6f63616c686f73743a3130303030', 'hex');
+  var s = new stream.Readable();
+  s._read = function() {};
+  s.push(buf)
+
+  var firstData;
+  var onread = function(data) {
+    if (!firstData) return firstData = data.toString();
+    t.equal(data.toString(), firstData);
+    t.end();
+  };
+
+  lpm.read(s, onread);
+  lpm.read(s, onread);
 });
