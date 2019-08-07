@@ -2,7 +2,7 @@ var varint = require('varint');
 
 var POOL_SIZE = 100000;
 var MINIMUM_POOL_LENGTH = 100;
-var pool = new Buffer(POOL_SIZE);
+var pool = Buffer.alloc(POOL_SIZE);
 
 exports.read = function(stream, cb) {
   var msglen = 0;
@@ -51,11 +51,11 @@ exports.read = function(stream, cb) {
 };
 
 exports.write = function(stream, msg) {
-  if (typeof msg === 'string') msg = new Buffer(msg);
+  if (typeof msg === 'string') msg = Buffer.from(msg);
   varint.encode(msg.length, pool);
   var lenBuf = pool.slice(0, varint.encode.bytes);
   pool = pool.slice(varint.encode.bytes);
-  if (pool.length < MINIMUM_POOL_LENGTH) pool = new Buffer(POOL_SIZE);
+  if (pool.length < MINIMUM_POOL_LENGTH) pool = Buffer.alloc(POOL_SIZE);
 
   stream.write(lenBuf);
   stream.write(msg);
